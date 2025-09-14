@@ -1,4 +1,5 @@
-from problems import Problem, Pacman
+from problems.problems import Problem
+from problems.pacman import Pacman
 from strategies import Strategy, Bfs, Dfs
 
 def tree_search(problem: Problem, strategy: Strategy):
@@ -7,7 +8,7 @@ def tree_search(problem: Problem, strategy: Strategy):
         if strategy.is_exhausted():
             return []
         print(len(strategy.frontier))
-        choice = strategy.choose()
+        choice, _ = strategy.choose()
         if problem.is_goal(choice):
             return problem.solution(choice)
         for state in problem.expand(choice):

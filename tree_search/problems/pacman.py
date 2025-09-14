@@ -1,25 +1,4 @@
-# TODO: Add smth that stops repeating states
-
-class State:
-    pass
-
-class Problem:
-    initial_state = None
-    # Checks if state is a goal
-    def is_goal(self, state):
-        raise NotImplementedError
-
-    # Generates the next state based on an action
-    def successor(self, state, action):
-        raise NotImplementedError
-
-    # Generates all possible actions
-    def expand(self, state) -> list:
-        raise NotImplementedError
-
-    # Generates the path of action/states that generated this state
-    def solution(self, state) -> list:
-        raise NotImplementedError
+from problems import Problem, State
 
 class PacmanState(State):
     def __init__(self, pellets, walls, position, board_size, parent_state, parent_action):
@@ -48,7 +27,6 @@ class Pacman(Problem):
     """
     If we consider y as up and down and x as left and right we have every direction as (y, x)
     0,0 is the leftmost highest square
-
     """
     DIRECTIONS = [
             ("up", (-1, 0)),
@@ -59,7 +37,7 @@ class Pacman(Problem):
 
     def __init__(self, table: list[list] | PacmanState):
         if isinstance(table, PacmanState):
-            self.initial_state = table
+            self.initial_state = (table, 0)
             return
 
         pellets = []
@@ -82,8 +60,7 @@ class Pacman(Problem):
         if position is None:
             raise ValueError("No Pacman")
         
-        self.initial_state = PacmanState(set(pellets), set(walls), position, board_size, None, None)
-
+        self.initial_state = (PacmanState(set(pellets), set(walls), position, board_size, None, None), 0)
 
     def is_goal(self, state: PacmanState): # type: ignore
         return not state.pellets
@@ -93,11 +70,7 @@ class Pacman(Problem):
         new_pellets = set(state.pellets)
         new_pellets.discard(new_position)
 
-        return PacmanState(new_pellets, state.walls, new_position, state.board_size, state, name)
-
-    def expand(self, state: PacmanState): # type: ignore
-        valid_actions = self.valid_actions(state)
-        return [self.successor(state, action) for action in valid_actions]
+        return (PacmanState(new_pellets, state.walls, new_position, state.board_size, state, name), 1)
         
     def valid_actions(self, state):
         valid_actions = []

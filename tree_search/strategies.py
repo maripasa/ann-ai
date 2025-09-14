@@ -24,3 +24,5 @@ class Bfs(Strategy):
 class Dfs(Strategy):
     def choose(self):
         return self.frontier.pop()
+
+

@@ -1,44 +1,51 @@
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-
 module Search where
 
+import Data.Foldable
+
 -- Generic Problem
-class Action a
-class State s
-class (Action a, State s) => Problem p s a | p -> s a where
-  successor :: p -> a -> s -> s
-  isGoal :: p -> s -> Bool
-  actions :: p -> s -> [a]
-  startState :: p -> s
-  expand :: p -> s -> [s]
+data Problem s a = Problem
+  { successor :: s -> a -> (s, Int),
+    isGoal :: s -> Bool,
+    initial :: s,
+    actions :: s -> [a]
+  }
 
 -- Graph Problem
 data Graph a = Graph
-  { edges :: [(Node a, [Node a])], -- Node ID -> list of neighbor IDs
-    start :: Node a,
-    goal :: Node a
+  { edges :: [(a, [(a, Int)])], -- Node ID -> list of neighbor IDs
+    start :: a,
+    goal :: a
   }
 
-newtype Node a = Node a
-
-newtype GraphAction a = GraphAction a
-
-instance Action (GraphAction a)
-
-instance State (Node a)
-
-instance Problem (Graph a) (Node a) (GraphAction a)
+graphProblem :: (Eq a) => Graph a -> Problem a a
+graphProblem graph =
+  Problem
+    { successor = successor' graph,
+      isGoal = (== goal graph),
+      initial = start graph,
+      actions = map fst . snd . findByNode (edges graph)
+    }
+  where
+    successor' graph' node target = (`findByNode` target) . snd . findByNode (edges graph') $ node
+    findByNode space node = case find (\(n, _) -> n == node) space of
+      Just a -> a
+      Nothing -> error "Node not present in the graph"
 
 -- Generic Search
-treeSearch :: (Problem p s a) => p -> ([s] -> (s, [s])) -> Maybe s
-treeSearch problem strategy = search [startState problem]
+treeSearch ::
+  Problem s a ->
+  ([(s, [a], Int)] -> ((s, [a], Int), [(s, [a], Int)])) ->
+  Maybe [a]
+treeSearch problem = search [(initial problem, [], 0)] problem
   where
-    search [] = Nothing
-    search fringe
-      | isGoal problem node = Just node
-      | otherwise   = search (fringe' ++ expand problem node)
-      where (node, fringe') = strategy fringe
-
-graphSearch = id
+    search [] _ _ = Nothing
+    search fringe problem' strategy
+      | isGoal problem' node = Just path
+      | otherwise = search (fringe' ++ expandedNodes) problem' strategy
+      where
+        ((node, path, cost), fringe') = strategy fringe
+        expandedNodes =
+          [ (s', path ++ [act], cost + stepCost) | act <- actions problem' node,
+              let (s', stepCost) = successor problem' node act
+          ]
 

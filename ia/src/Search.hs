@@ -13,12 +13,12 @@ data Problem s a c = Problem
   }
 
 -- | Search Strategy
-newtype Strategy s a = Strategy ([(s, [a], Int)] -> ((s, [a], Int), [(s, [a], Int)]))
+newtype Strategy s a c = Strategy ([(s, [a], c)] -> ((s, [a], c), [(s, [a], c)]))
 
 -- | Generic Tree Search
-treeSearch ::
-  Problem s a c-> 
-  Strategy s a -> 
+treeSearch :: (Num c) =>
+  Problem s a c -> 
+  Strategy s a c -> 
   Maybe [a]
 treeSearch problem (Strategy strategy) =
   search [(initial problem, [], 0)] problem strategy
@@ -35,21 +35,13 @@ treeSearch problem (Strategy strategy) =
           ]
 
 -- | Generic Graph Search
-graphSearch ::
-  (Ord s) =>
+graphSearch :: (Ord s, Num c) =>
   Problem s a c -> -- Problem
-  Strategy s a -> -- Strategy
+  Strategy s a c -> -- Strategy
   Maybe [a] -- Solution
 graphSearch problem (Strategy strategy) =
   search Set.empty [(initial problem, [], 0)] problem strategy
   where
-    search ::
-      (Ord s) =>
-      Set.Set s -> -- Closed
-      [(s, [a], Int)] -> -- Fringe
-      Problem s a ->
-      ([(s, [a], Int)] -> ((s, [a], Int), [(s, [a], Int)])) ->
-      Maybe [a]
     search _ [] _ _ = Nothing
     search closed fringe problem' strategy'
       | isGoal problem' node   = Just path
@@ -67,27 +59,27 @@ graphSearch problem (Strategy strategy) =
           ]
 
 -- Uninformed Search
-depthFirstSearch :: Strategy s a
+depthFirstSearch :: Strategy s a c
 depthFirstSearch = Strategy (\fringe -> (last fringe, init fringe))
 
-breadthFirstSearch :: Strategy s a
+breadthFirstSearch :: Strategy s a c
 breadthFirstSearch = Strategy bfs
   where
     bfs [] = error "Breadth First Search can't use an empty fringe"
     bfs (state:fs) = (state, fs)
 
-uniformCostSearch :: Strategy s a
+uniformCostSearch :: (Ord c) => Strategy s a c
 uniformCostSearch = Strategy $ \fringe ->
   let sorted = sortBy (comparing (\(_,_,cost) -> cost)) fringe
   in (head sorted, tail sorted)
 
 -- Informed Search
-greedySearch :: (Ord a) => (s -> a) -> Strategy s a
+greedySearch :: (Ord c) => (s -> c) -> Strategy s a c
 greedySearch h = Strategy $ \fringe ->
   let sorted = sortBy (comparing (\(state,_,_) -> h state)) fringe
   in (head sorted, tail sorted)
 
-aStar :: (Num b, Ord b) => (s -> b) -> Strategy s a
+aStar :: (Num c, Ord c) => (s -> c) -> Strategy s a c
 aStar h = Strategy $ \fringe ->
   let sorted = sortBy (comparing (\(state, _, cost) -> cost + h state)) fringe
   in (head sorted, tail sorted)

@@ -1,0 +1,4 @@
+marimo[recommended]
+torch
+numpy
+matplotlib

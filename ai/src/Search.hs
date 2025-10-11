@@ -50,6 +50,20 @@ graphSearch problem = search Set.empty [(initial problem, [], 0)] problem
           [ (s', path ++ [act], cost + stepCost) | act <- actions problem' node, let (s', stepCost) = successor problem' node act
           ]
 
+-- May fail if filtered = []
+depthLimitedSearch :: Int -> Strategy s a c
+depthLimitedSearch limit = depthFirstSearch . takeWhile (\(_, a, _) -> length a <= limit)
+
+-- | max' is for preventing infinite search. You could set it as -1 for infinite search.
+iterativeDeepeningSearch :: Int -> Problem s a c -> (Problem s a c -> Strategy s a c -> Maybe [a]) -> Maybe [a]
+iterativeDeepeningSearch max' problem search = go 0
+  where
+    go limit
+      | limit == max' = Nothing
+      | otherwise = case search problem (depthLimitedSearch limit) of
+          Just path -> Just path
+          Nothing -> go (limit + 1)
+
 depthFirstSearch :: Strategy s a c
 depthFirstSearch fringe = (last fringe, init fringe)
 

@@ -21,11 +21,11 @@ treeSearch :: (Num c) => Problem s a c -> Strategy s a c -> Maybe [a]
 treeSearch problem = search [(initial problem, [], 0)] problem
   where
     search [] _ _ = Nothing
-    search fringe problem' strategy'
+    search frontier problem' strategy'
       | isGoal problem' node = Just path
-      | otherwise = search (fringe' ++ expandedNodes) problem' strategy'
+      | otherwise = search (frontier' ++ expandedNodes) problem' strategy'
       where
-        ((node, path, cost), fringe') = strategy' fringe
+        ((node, path, cost), frontier') = strategy' frontier
         expandedNodes =
           [ (s', path ++ [act], cost + stepCost) | act <- actions problem' node, let (s', stepCost) = successor problem' node act
           ]
@@ -35,17 +35,17 @@ graphSearch :: (Ord s, Num c) => Problem s a c -> Strategy s a c -> Maybe [a]
 graphSearch problem = search Set.empty [(initial problem, [], 0)] problem
   where
     search _ [] _ _ = Nothing
-    search closed fringe problem' strategy'
+    search closed frontier problem' strategy'
       | isGoal problem' node = Just path
-      | Set.member node closed = search closed fringe' problem' strategy'
+      | Set.member node closed = search closed frontier' problem' strategy'
       | otherwise =
           search
             (Set.insert node closed)
-            (fringe' ++ expandedNodes)
+            (frontier' ++ expandedNodes)
             problem'
             strategy'
       where
-        ((node, path, cost), fringe') = strategy' fringe
+        ((node, path, cost), frontier') = strategy' frontier
         expandedNodes =
           [ (s', path ++ [act], cost + stepCost) | act <- actions problem' node, let (s', stepCost) = successor problem' node act
           ]
@@ -65,25 +65,25 @@ iterativeDeepeningSearch max' problem search = go 0
           Nothing -> go (limit + 1)
 
 depthFirstSearch :: Strategy s a c
-depthFirstSearch fringe = (last fringe, init fringe)
+depthFirstSearch frontier = (last frontier, init frontier)
 
 breadthFirstSearch :: Strategy s a c
-breadthFirstSearch [] = error "Breadth First Search can't use an empty fringe"
+breadthFirstSearch [] = error "Breadth First Search can't use an empty frontier"
 breadthFirstSearch (state : fs) = (state, fs)
 
 uniformCostSearch :: (Ord c) => Strategy s a c
-uniformCostSearch fringe =
-  let sorted = sortBy (comparing (\(_, _, cost) -> cost)) fringe
+uniformCostSearch frontier =
+  let sorted = sortBy (comparing (\(_, _, cost) -> cost)) frontier
    in (head sorted, tail sorted)
 
 greedySearch :: (Ord c) => (s -> c) -> Strategy s a c
-greedySearch h fringe =
-  let sorted = sortBy (comparing (\(state, _, _) -> h state)) fringe
+greedySearch h frontier =
+  let sorted = sortBy (comparing (\(state, _, _) -> h state)) frontier
    in (head sorted, tail sorted)
 
 aStar :: (Num c, Ord c) => (s -> c) -> Strategy s a c
-aStar h fringe =
-  let sorted = sortBy (comparing (\(state, _, cost) -> cost + h state)) fringe
+aStar h frontier =
+  let sorted = sortBy (comparing (\(state, _, cost) -> cost + h state)) frontier
    in (head sorted, tail sorted)
 
 -- | Graph Problem

@@ -86,6 +86,17 @@ aStar h frontier =
   let sorted = sortBy (comparing (\(state, _, cost) -> cost + h state)) frontier
    in (head sorted, tail sorted)
 
+-- | Generic Hill Climb
+hillClimb :: (Ord v) => Problem s a c -> (s -> v) -> s
+hillClimb problem valuator = climb (initial problem)
+  where
+    climb state
+      | null successors || valuator contender <= valuator state = state
+      | otherwise = climb contender
+      where
+        contender = maximumBy (comparing valuator) successors
+        successors = map (fst . successor problem state) . actions problem $ state
+
 -- | Graph Problem
 data Graph a c = Graph
   { edges :: [(a, [(a, c)])], -- Node ID -> list of neighbor IDs

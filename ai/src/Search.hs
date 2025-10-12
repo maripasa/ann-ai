@@ -4,6 +4,7 @@ import Data.Foldable
 import Data.List
 import Data.Ord
 import qualified Data.Set as Set
+import System.Random
 
 -- | Generic Problem
 data Problem s a c = Problem
@@ -87,15 +88,53 @@ aStar h frontier =
    in (head sorted, tail sorted)
 
 -- | Generic Hill Climb
-hillClimb :: (Ord v) => Problem s a c -> (s -> v) -> s
-hillClimb problem valuator = climb (initial problem)
+hillClimb :: (Ord v) => Problem s a c -> (s -> v) -> s -> s
+hillClimb problem valuator state
+  | null successors || valuator contender <= valuator state = state
+  | otherwise = hillClimb problem valuator contender
   where
-    climb state
-      | null successors || valuator contender <= valuator state = state
-      | otherwise = climb contender
+    contender = maximumBy (comparing valuator) successors
+    successors = map (fst . successor problem state) . actions problem $ state
+
+choice :: [a] -> StdGen -> (a, StdGen)
+choice [] _ = error "Cannot pick from an empty list"
+choice xs gen =
+  let (i, gen') = randomR (0, length xs - 1) gen
+   in (xs !! i, gen')
+
+-- | Picks first with e^x, second with 1-e^x
+choiceE2 :: Double -> a -> a -> StdGen -> (a, StdGen)
+choiceE2 x first second gen
+  | x < 0 || x > 0.999999 = error "x must be between 0 and ~0.999999 for e^x <= 1"
+  | otherwise =
+      let p = exp x
+          (r, gen') = randomR (0.0, 1.0) gen
+       in (if r < p then first else second, gen')
+
+simulatedAnnealing :: Problem s a c -> (Int -> Double) -> (s -> Double) -> s -> StdGen -> s
+simulatedAnnealing problem schedule valuator = go 1
+  where
+    go n state gen
+      | t == 0 = state
+      | deltaE > 0 = go (n + 1) contender gen'
+      | otherwise = go (n + 1) choosen gen''
       where
-        contender = maximumBy (comparing valuator) successors
+        t = schedule n
         successors = map (fst . successor problem state) . actions problem $ state
+        (contender, gen') = choice successors gen
+        deltaE = valuator contender - valuator state
+        (choosen, gen'') = choiceE2 (deltaE / t) state contender gen'
+
+localBeamSearch :: (Ord v) => Problem s a c -> (s -> v) -> Int -> [s] -> Int -> [s]
+localBeamSearch problem valuator k initStates maxIter = go 0 initStates
+  where
+    go iter states
+      | iter >= maxIter = take k $ sortBy (comparing (Down . valuator)) states
+      | null allSuccessors = take k $ sortBy (comparing (Down . valuator)) states
+      | otherwise = go (iter + 1) nextStates
+      where
+        allSuccessors = concatMap (\state -> map (fst . successor problem state) (actions problem state)) states
+        nextStates = take k $ sortBy (comparing (Down . valuator)) allSuccessors
 
 -- | Graph Problem
 data Graph a c = Graph

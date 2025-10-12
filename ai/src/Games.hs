@@ -1,0 +1,25 @@
+module Games where
+
+-- Deterministic Games:
+--  States: S=[S0..]
+--  Players: P=[1..N]
+--  Actions: A (Depend on the player for a given state)
+--  Transition function: s -> a -> s
+--  Terminal test: s -> bool
+--  Terminal utility: s -> p -> r
+--
+-- Solution for a player is a policy: s -> a
+--
+-- Zero-Sum Games
+--  Agents have opposite utilities
+--  Pure competition:
+--    One maximizes, the other minimizes
+--
+-- General-Sum Games
+--  Agents have independent utilities
+--  Cooperation, indifference, competition, shifting alliances, and more are all possible
+--
+-- Minimax Values
+--  Agent -> V(s') = max V(s)
+--  Adversary -> V(s') = min V(s)
+--  Each picks the one that gives it the most value! If my enemy is rational, it will pick the best one for they

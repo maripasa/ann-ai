@@ -109,12 +109,38 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    closed = set()
+    fringe = util.Queue()
+    fringe.push((problem.getStartState(), [], 0))
+
+    while True:
+        if fringe.isEmpty():
+            raise Exception()
+        state, directions, cost = fringe.pop()
+        if problem.isGoalState(state):
+            return directions
+        if state not in closed:
+            closed.add(state)
+            for n_state, n_direction, n_cost in problem.getSuccessors(state):
+                fringe.push((n_state, directions + [n_direction], cost + n_cost))
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    closed = set()
+    fringe = util.PriorityQueue()
+    fringe.push((problem.getStartState(), [], 0), 0)
+
+    while True:
+        if fringe.isEmpty():
+            raise Exception()
+        state, directions, cost = fringe.pop()
+        if problem.isGoalState(state):
+            return directions
+        if state not in closed:
+            closed.add(state)
+            for n_state, n_direction, n_cost in problem.getSuccessors(state):
+                fringe.push((n_state, directions + [n_direction], cost + n_cost), cost + n_cost)
 
 def nullHeuristic(state, problem=None):
     """
@@ -126,7 +152,21 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    closed = set()
+    fringe = util.PriorityQueue()
+    startState = problem.getStartState()
+    fringe.push((startState, [], 0), heuristic(startState, problem))
+
+    while True:
+        if fringe.isEmpty():
+            raise Exception()
+        state, directions, cost = fringe.pop()
+        if problem.isGoalState(state):
+            return directions
+        if state not in closed:
+            closed.add(state)
+            for n_state, n_direction, n_cost in problem.getSuccessors(state):
+                fringe.push((n_state, directions + [n_direction], cost + n_cost), cost + n_cost + heuristic(n_state, problem))
 
 
 # Abbreviations

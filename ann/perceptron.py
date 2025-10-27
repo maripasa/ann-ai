@@ -20,26 +20,26 @@ def _(mo):
         r"""
     ## Perceptron
 
-    - **Tipo:** Classificador linear binário  
-    - **Entrada:** Vetor `x = [x₁, x₂, ..., xₙ]`  
-    - **Pesos:** Vetor `w = [w₁, w₂, ..., wₙ]` mais o viés `b`  
-    - **Saída:**  
+    - **Type:** Linear Binary Classificator
+    - **Input:** Vector `x = [x₁, x₂, ..., xₙ]`  
+    - **Weights:** Vector `w = [w₁, w₂, ..., wₙ]` plus a bias `b`  
+    - **Output:**  
 
       ```latex
       y' = sign(w^T x + b)
       ```
 
-    - **Regra de aprendizado:** Para cada amostra mal classificada `(x, y)`:
+    - **Learning process:** For any mismatched sample `(x, y)`:
 
       ```latex
       w <- w + y * x
       b <- b + y
       ```
 
-    - **Propriedades:**
-      - Apenas aprende padrões linearmente separáveis  
-      - Base das redes neurais  
-      - Atualiza pesos iterativamente até convergência ou número máximo de iterações
+    - **Properties:**
+      - Only learns linearly separable problems.
+      - Basis for Neural Networks (MLP -> Multi Layered Perceptrons)
+      - Updates weights until convergence or max number of iterations
     """
     )
     return

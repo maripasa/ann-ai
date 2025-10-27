@@ -21,17 +21,17 @@ def _(mo):
     ## Perceptron
 
     - **Type:** Linear Binary Classificator
-    - **Input:** Vector `x = [x₁, x₂, ..., xₙ]`  
-    - **Weights:** Vector `w = [w₁, w₂, ..., wₙ]` plus a bias `b`  
+    - **Input:** Vector `x = [x1, x2, ..., xn]`  
+    - **Weights:** Vector `w = [w1, w2, ..., wn]` plus a bias `b`  
     - **Output:**  
 
-      ```latex
+      ```
       y' = sign(w^T x + b)
       ```
 
     - **Learning process:** For any mismatched sample `(x, y)`:
 
-      ```latex
+      ```
       w <- w + y * x
       b <- b + y
       ```

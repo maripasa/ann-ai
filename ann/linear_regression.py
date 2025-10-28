@@ -96,6 +96,7 @@ def _(LinearRegressor, np, plt, train_test_split):
     axs.scatter(X_train, y_train, c="blue")
     axs.scatter(X_test, y_test, c="green")
 
+    # Just realized that there is no reason for the split, but it happens, and I won't fix it. I blame it all on python.
     plt.show()
     return
 

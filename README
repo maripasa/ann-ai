@@ -6,7 +6,12 @@ The repository has 3 folders:
 
 - ai/
 My AI course implementations in haskell
+
 - ann/
 My ANN course implementations in marimo (python based notebook)
 
+- scratchpad/
+Some loose/older notes, files and implementations.
+
 Hope these are useful! They sure were to me!
+

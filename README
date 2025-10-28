@@ -1,0 +1,12 @@
+# ann-ai
+
+2025.2 notes and implementations to help me in both AI and ANN IFCE courses. Some may prefer individual repos, but these even have the same professor.
+
+The repository has 3 folders:
+
+- ai/
+My AI course implementations in haskell
+- ann/
+My ANN course implementations in marimo (python based notebook)
+
+Hope these are useful! They sure were to me!

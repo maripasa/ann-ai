@@ -56,8 +56,8 @@ def _(np):
             n, d = X.shape
             self.weights = np.zeros(d)
             for _ in range(epochs):
-                grad = (1/n) * X.T @ ((sig(X @ self.weights)) - y)
-                self.weights -= self.lr * grad
+                grad = (1/n) * X.T @ (y - (sig(X @ self.weights)))
+                self.weights += self.lr * grad
 
         def predict_proba(self, X):
             X = self._augment_with_bias(X)
@@ -117,7 +117,6 @@ def _(mo):
     - Generalizes logistic regression to multiple classes
     - Trains using gradient descent on cross-entropy
     - Outputs probability distribution; predict class with max probability
-
     """
     )
     return
